@@ -1,0 +1,7 @@
+# Match-Three
+
+Fitur yang ditambahkan
+-
+
+# Player Controls
+Tap or click on tile to select, then choose adjacent tile to swap
