@@ -236,6 +236,8 @@ public class BoardManager : MonoBehaviour
         {
             return IsAllTrue(isCompleted);
         });
+
+        onCompleted?.Invoke();
     }
 
     private void ProcessDrop()
@@ -254,8 +256,8 @@ public class BoardManager : MonoBehaviour
             {
                 if (tiles[x, y].IsDestroyed)
                 {
-                    for (int i = y+1; y<size.y; i++)
-                    {
+                    for (int i = y + 1; i < size.y; i++)
+                    {                        
                         if (tiles[x, i].IsDestroyed)
                         {
                             continue;
@@ -287,6 +289,7 @@ public class BoardManager : MonoBehaviour
 
             temp.ChangeId(temp.id, tileIndex.x, tileIndex.y - pair.Value);
         }
+
         yield return null;
 
         onCompleted?.Invoke();
@@ -308,7 +311,7 @@ public class BoardManager : MonoBehaviour
 
         for(int x = 0; x < size.x; x++)
         {
-            for (int y=0; y<size.y; y++)
+            for (int y=0; y < size.y; y++)
             {
                 if (tiles[x, y].IsDestroyed)
                 {
@@ -321,7 +324,7 @@ public class BoardManager : MonoBehaviour
     }
 
     private IEnumerator DestroyedAndFillTiles(List<TileController> destroyedTiles, System.Action onCompleted)
-    {
+    {        
         List<int> highestIndex = new List<int>();
 
         for (int i = 0; i< size.x; i++)
@@ -360,12 +363,11 @@ public class BoardManager : MonoBehaviour
         List<bool> isCompleted = new List<bool>();
 
         int i = 0;
-        for(int x = 0; i < size.x; x++)
+        for(int x = 0; x < size.x; x++)
         {
             for (int y = 0; y < size.y; y++)
             {
-                Vector2 targetPos = GetIndexPos(new Vector2Int(x, y));
-
+                Vector2 targetPos = GetIndexPos(new Vector2Int(x, y));                
                 if ((Vector2)tiles[x,y].transform.position == targetPos)
                 {
                     continue;

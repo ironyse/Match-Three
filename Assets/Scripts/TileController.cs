@@ -106,7 +106,7 @@ public class TileController : MonoBehaviour
     {
         transform.localScale = sizeNormal;
         IsDestroyed = false;
-        ChangeId(Random.Range(0, board.tileTypes.Count), x, y);
+        ChangeId(Random.Range(0, board.tileTypes.Count), x, y);        
     }
 
     public IEnumerator MoveTilePosition(Vector2 targetPos, System.Action onCompleted)
