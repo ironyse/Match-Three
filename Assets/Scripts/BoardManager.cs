@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
+    private int combo;
+
     private static BoardManager _instance = null;
     public static BoardManager Instance
     {
@@ -26,7 +28,7 @@ public class BoardManager : MonoBehaviour
     [Header("Tile")]
     public List<Sprite> tileTypes = new List<Sprite>();
     public GameObject tilePrefab;
-
+    
     private Vector2 startPos;
     private Vector2 endPos;
     private TileController[,] tiles;
@@ -94,6 +96,7 @@ public class BoardManager : MonoBehaviour
     {
         IsProcessing = true;
         ProcessMatch();
+        combo = 0;
     }
 
     private List<int> GetStartingPossibleList(int x, int y)
@@ -211,6 +214,9 @@ public class BoardManager : MonoBehaviour
             return;
         }
 
+        combo++;
+
+        ScoreManager.Instance.IncrementCurrentScore(matchingTiles.Count, combo);
         StartCoroutine(ClearMatches(matchingTiles, ProcessDrop));
     }
 

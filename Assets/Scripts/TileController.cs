@@ -18,13 +18,13 @@ public class TileController : MonoBehaviour
     private static readonly Vector2 sizeBig = Vector2.one * 1.2f;
     private static readonly Vector2 sizeSmall = Vector2.zero;
     private static readonly Vector2 sizeNormal = Vector2.one;
-
     private static readonly Vector2[] adjacentDirection = new Vector2[]
     {
         Vector2.up, Vector2.down, Vector2.left, Vector2.right
     };
-
     private static TileController previousSelected = null;
+
+    private GameFlowManager game;
     private bool isSelected = false;
 
     public bool IsDestroyed { get; private set; }
@@ -38,11 +38,14 @@ public class TileController : MonoBehaviour
     {
         board = BoardManager.Instance;
         sprRenderer = GetComponent<SpriteRenderer>();
+        game = GameFlowManager.Instance;
     }
 
     private void OnMouseDown()
     {
-        if (sprRenderer.sprite == null || board.IsAnimating) return;
+        if (sprRenderer.sprite == null || board.IsAnimating || game.IsGameOver) return;
+
+        SoundManager.Instance.PlayTap();
 
         if (isSelected)
         {
@@ -72,6 +75,7 @@ public class TileController : MonoBehaviour
                         }
                         else
                         {
+                            SoundManager.Instance.PlayWrong();
                             SwapTile(otherTile);
                         }
 
