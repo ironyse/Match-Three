@@ -188,11 +188,8 @@ public class BoardManager : MonoBehaviour
 
                 foreach (TileController item in tileMatched)
                 {
-                    if (!matchingTiles.Contains(item))
-                    {
-                        matchingTiles.Add(item);
-                    }
 
+                    // kalau tile yang ke match punya power, maka satu baris searah dengan directionya akan ditambahkan kedalam matchingTiles
                     if (item.HasPower)
                     {
                         List<TileController> additionalTiles = new List<TileController>();
@@ -210,7 +207,12 @@ public class BoardManager : MonoBehaviour
                         }
                     }
 
-                    
+                    if (!matchingTiles.Contains(item))
+                    {
+                        matchingTiles.Add(item);
+                    }
+
+
                 }
             }
         }

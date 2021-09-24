@@ -281,6 +281,9 @@ public class TileController : MonoBehaviour
 
     #region Power
 
+
+    // melakukan Raycasting mirip seperti GetAllMatches namun tanpa batasan harus memiliki id yang sama
+
     public List<TileController> GetLineTiles(Vector2[] paths) {
         TilePower casterPower = tilePower;
         List<TileController> tilesInline = new List<TileController>();
@@ -298,7 +301,9 @@ public class TileController : MonoBehaviour
                 if (otherTile.HasPower && otherTile.tilePower != casterPower)
                 {
                     List<TileController> additionalTiles = new List<TileController>();
-                 
+                    
+
+                    // jika tile yang di hit memiliki power (chain reaction) maka akan memanggil fungsi ini lagi dari perspektif tile yang di hit(otherTile)
                     if (otherTile.tilePower == TilePower.Horizontal)
                     {
                         additionalTiles.AddRange(otherTile.GetLineTiles(new Vector2[2] { Vector2.left, Vector2.right }));
