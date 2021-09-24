@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum TilePower { None, Horizontal, Vertical, Explode }
+
 public class TileController : MonoBehaviour
 {
     public int id;
+    
+    public float powerChance = 0.05f;
 
     private BoardManager board;
     private SpriteRenderer sprRenderer;
@@ -25,9 +29,15 @@ public class TileController : MonoBehaviour
     private static TileController previousSelected = null;
 
     private GameFlowManager game;
+    public TilePower tilePower;
+
+    [SerializeField] private List<GameObject> _powers;
+
     private bool isSelected = false;
 
     public bool IsDestroyed { get; private set; }
+
+    public bool HasPower { get { return (tilePower != TilePower.None); } }
 
     private void Start()
     {
@@ -47,50 +57,52 @@ public class TileController : MonoBehaviour
 
         SoundManager.Instance.PlayTap();
 
-        if (isSelected)
-        {
+        if (isSelected) {
             Deselect();
         }
-        else
-        {
+        else {
 
-            if (previousSelected == null)
-            {
+            if (previousSelected == null) {
                 Select();
             }
-            else
-            {
-
-                if (GetAllAdjacentTiles().Contains(previousSelected))
-                {
-
+            else {
+                if (GetAllAdjacentTiles().Contains(previousSelected)) {
                     TileController otherTile = previousSelected;
                     previousSelected.Deselect();
 
                     SwapTile(otherTile, () => {
-                        if (board.GetAllMatches().Count > 0)
-                        {
+                        if (board.GetAllMatches().Count > 0) {
                             // match found
                             board.Process();
                         }
-                        else
-                        {
+                        else {
                             SoundManager.Instance.PlayWrong();
                             SwapTile(otherTile);
                         }
-
                     });
 
                 }
-                else
-                {
-
+                else {
                     previousSelected.Deselect();
                     Select();
                 }
             }
 
         }
+    }
+
+    public void GivePower()
+    {
+        float rand = Random.Range(0f, 1f);
+        if (rand < powerChance)
+        {
+            tilePower = (TilePower)Random.Range(1, 3);
+            _powers.Find(e => e.name.Contains(tilePower.ToString())).SetActive(true);            
+        }
+        else
+        {
+            tilePower = TilePower.None;
+        }  
     }
 
     public void ChangeId(int id, int x, int y)
@@ -196,6 +208,7 @@ public class TileController : MonoBehaviour
     #endregion
 
     #region Check Match
+
     private List<TileController> GetMatch(Vector2 castDir)
     {
         List<TileController> matchingTiles = new List<TileController>();
@@ -204,7 +217,7 @@ public class TileController : MonoBehaviour
         while (hit)
         {
             TileController otherTile = hit.collider.GetComponent<TileController>();
-            if (otherTile.id != id || otherTile.IsDestroyed)
+            if ((otherTile.id != id || otherTile.IsDestroyed))
             {
                 break;
             }
@@ -262,6 +275,47 @@ public class TileController : MonoBehaviour
         }
 
         return matchingTiles;
+    }
+
+    #endregion
+
+    #region Power
+
+    public List<TileController> GetLineTiles(Vector2[] paths) {
+        TilePower casterPower = tilePower;
+        List<TileController> tilesInline = new List<TileController>();
+
+        for (int i = 0; i < paths.Length; i++)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, paths[i], sprRenderer.size.x);
+            
+            while (hit)
+            {                
+                TileController otherTile = hit.collider.GetComponent<TileController>();
+
+                if (otherTile.IsDestroyed) break;
+
+                if (otherTile.HasPower && otherTile.tilePower != casterPower)
+                {
+                    List<TileController> additionalTiles = new List<TileController>();
+                 
+                    if (otherTile.tilePower == TilePower.Horizontal)
+                    {
+                        additionalTiles.AddRange(otherTile.GetLineTiles(new Vector2[2] { Vector2.left, Vector2.right }));
+                    } else if (otherTile.tilePower == TilePower.Vertical) {
+                        additionalTiles.AddRange(otherTile.GetLineTiles(new Vector2[2] { Vector2.up, Vector2.down }));
+                    }
+
+                    tilesInline.AddRange(additionalTiles);
+
+                }
+
+                tilesInline.Add(otherTile);
+                hit = Physics2D.Raycast(otherTile.transform.position, paths[i], sprRenderer.size.x);
+            }
+        }
+
+        return tilesInline;
     }
 
     #endregion

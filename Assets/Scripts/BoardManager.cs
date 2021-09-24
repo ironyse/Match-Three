@@ -87,17 +87,11 @@ public class BoardManager : MonoBehaviour
                 List<int> possibleId = GetStartingPossibleList(x, y);
                 int newID = possibleId[Random.Range(0, possibleId.Count)];
 
-                newTile.ChangeId(newID, x, y);
+                newTile.GivePower();
+                newTile.ChangeId(newID, x, y);                
             }
         }
-    }
-
-    public void Process()
-    {
-        IsProcessing = true;
-        ProcessMatch();
-        combo = 0;
-    }
+    }    
 
     private List<int> GetStartingPossibleList(int x, int y)
     {
@@ -141,33 +135,8 @@ public class BoardManager : MonoBehaviour
             startPos.x + ((tileSize.x + offsetTile.x) * index.x),
             startPos.y + ((tileSize.y + offsetTile.y) * index.y)
             );
-    }
-
-    public List<TileController> GetAllMatches()
-    {
-        List<TileController> matchingTiles = new List<TileController>();
-
-        for (int x = 0; x < size.x; x++)
-        {
-            for (int y = 0; y < size.y; y++)
-            {
-                List<TileController> tileMatched = tiles[x, y].GetAllMatches();
-
-                if (tileMatched == null || tileMatched.Count == 0) continue;
-
-                foreach (TileController item in tileMatched)
-                {
-                    if (!matchingTiles.Contains(item))
-                    {
-                        matchingTiles.Add(item);
-                    }
-                }
-            }
-        }
-
-        return matchingTiles;
-    }
-
+    }   
+    
     #region Swapping
     public IEnumerator SwapTilePosition(TileController a, TileController b, System.Action onCompleted)
     {
@@ -204,6 +173,58 @@ public class BoardManager : MonoBehaviour
     #endregion
 
     #region Match
+
+    public List<TileController> GetAllMatches()
+    {
+        List<TileController> matchingTiles = new List<TileController>();
+
+        for (int x = 0; x < size.x; x++)
+        {
+            for (int y = 0; y < size.y; y++)
+            {
+                List<TileController> tileMatched = tiles[x, y].GetAllMatches();
+
+                if (tileMatched == null || tileMatched.Count == 0) continue;
+
+                foreach (TileController item in tileMatched)
+                {
+                    if (!matchingTiles.Contains(item))
+                    {
+                        matchingTiles.Add(item);
+                    }
+
+                    if (item.HasPower)
+                    {
+                        List<TileController> additionalTiles = new List<TileController>();
+                        if (item.tilePower == TilePower.Horizontal)
+                        {
+                            additionalTiles.AddRange(item.GetLineTiles(new Vector2[2] { Vector2.left, Vector2.right }));
+                        } else if (item.tilePower == TilePower.Vertical)
+                        {
+                            additionalTiles.AddRange(item.GetLineTiles(new Vector2[2] { Vector2.up, Vector2.down }));
+                        }
+
+                        if (additionalTiles.Count > 0)
+                        {
+                            matchingTiles.AddRange(additionalTiles);
+                        }
+                    }
+
+                    
+                }
+            }
+        }
+
+        return matchingTiles;
+    }
+
+    public void Process()
+    {
+        IsProcessing = true;
+        ProcessMatch();
+        combo = 0;
+    }
+
     private void ProcessMatch()
     {
         List<TileController> matchingTiles = GetAllMatches();
@@ -300,6 +321,10 @@ public class BoardManager : MonoBehaviour
 
         onCompleted?.Invoke();
     }
+    #endregion
+
+    #region Tile Power
+
     #endregion
 
     #region Destroy & Fill
@@ -399,4 +424,6 @@ public class BoardManager : MonoBehaviour
     }
 
     #endregion
+
+   
 }
