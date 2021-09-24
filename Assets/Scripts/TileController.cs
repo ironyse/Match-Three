@@ -93,6 +93,10 @@ public class TileController : MonoBehaviour
 
     public void GivePower()
     {
+        foreach (GameObject item in _powers)
+        {
+            item.SetActive(false);
+        }
         float rand = Random.Range(0f, 1f);
         if (rand < powerChance)
         {
@@ -101,11 +105,7 @@ public class TileController : MonoBehaviour
         }
         else
         {
-            tilePower = TilePower.None;
-            foreach(GameObject item in _powers)
-            {
-                item.SetActive(false);
-            }
+            tilePower = TilePower.None;            
         }  
     }
 
