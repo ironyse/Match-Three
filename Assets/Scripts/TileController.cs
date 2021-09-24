@@ -102,6 +102,10 @@ public class TileController : MonoBehaviour
         else
         {
             tilePower = TilePower.None;
+            foreach(GameObject item in _powers)
+            {
+                item.SetActive(false);
+            }
         }  
     }
 
@@ -122,6 +126,7 @@ public class TileController : MonoBehaviour
     {
         transform.localScale = sizeNormal;
         IsDestroyed = false;
+        GivePower();
         ChangeId(Random.Range(0, board.tileTypes.Count), x, y);        
     }
 

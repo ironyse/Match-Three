@@ -95,7 +95,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 0
-  powerChance: 0.2
+  powerChance: 0.1
   tilePower: 0
   _powers:
   - {fileID: 6893119607181125379}
